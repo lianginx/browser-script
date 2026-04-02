@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name         Clear URL Tracking Params (Enhanced)
+// @name         URL 追踪清理
 // @namespace    @lianginx/clearUrls
 // @match        *://*/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=clearurls.dev
 // @grant        none
-// @version      1.0.0
+// @version      1.0.1
 // @author       lianginx
 // @description  清理 URL 追踪参数（支持规则匹配 + 域名策略 + SPA）
 // @downloadURL  https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/clear-urls/clear-urls.user.js
