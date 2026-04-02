@@ -2,7 +2,6 @@
 // @name         URL 追踪清理
 // @namespace    @lianginx/clearUrls
 // @match        *://*/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=clearurls.dev
 // @grant        none
 // @version      1.0.1
 // @author       lianginx
