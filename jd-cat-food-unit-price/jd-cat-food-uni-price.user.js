@@ -7,6 +7,8 @@
 // @version     0.1.0
 // @author      lianginx
 // @description 在京东购物车中识别猫粮商品并自动计算每公斤和每 500g 的单价，方便快速比较性价比。
+// @downloadURL https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/jd-cat-food-unit-price/jd-cat-food-uni-price.user.js
+// @updateURL   https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/jd-cat-food-unit-price/jd-cat-food-uni-price.user.js
 // @run-at      document-idle
 // ==/UserScript==
 

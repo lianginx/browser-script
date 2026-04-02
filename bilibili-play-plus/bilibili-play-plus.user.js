@@ -1,12 +1,14 @@
 // ==UserScript==
 // @name        哔哩哔哩增强
-// @namespace   @lianginx/bilibili-plus
+// @namespace   @lianginx/bilibili-play-plus
 // @match       https://www.bilibili.com/video/*
 // @icon        https://i0.hdslb.com/bfs/static/jinkela/long/images/favicon.ico
 // @grant       none
 // @version     0.2.1
-// @author      Liang
+// @author      lianginx
 // @description 优化 B 站视频页播放体验，自动宽屏、取消顶部栏固定，并在播放时自动滚动到播放器。
+// @downloadURL https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/bilibili-play-plus/bilibili-play-plus.user.js
+// @updateURL   https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/bilibili-play-plus/bilibili-play-plus.user.js
 // @run-at      document-end
 // ==/UserScript==
 

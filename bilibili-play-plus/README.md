@@ -4,7 +4,7 @@
 
 ## 使用方式
 
-[点击安装](https://raw.githubusercontent.com/lianginx/browser-script/main/bilibili-play-plus/bilibili-play-plus.user.js)
+[点击安装](https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/bilibili-play-plus/bilibili-play-plus.user.js)
 
 1. 在 Tampermonkey、Violentmonkey 等用户脚本管理器中安装脚本
 2. 打开任意 B 站视频页

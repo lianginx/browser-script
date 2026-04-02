@@ -6,8 +6,8 @@
 
 | 脚本             | 说明                                                 | 目录                                                                                                                                                            |
 | ---------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 京东猫粮单价计算 | 在京东购物车中识别猫粮商品并展示每公斤、每 500g 单价 | [目录](./jd-cat-food-unit-price/) / [安装](https://raw.githubusercontent.com/lianginx/browser-script/main/jd-cat-food-unit-price/jd-cat-food-uni-price.user.js) |
-| 哔哩哔哩增强     | 自动宽屏、取消顶部栏固定，并在播放时自动滚动到播放器 | [目录](./bilibili-play-plus/) / [安装](https://raw.githubusercontent.com/lianginx/browser-script/main/bilibili-play-plus/bilibili-play-plus.user.js)            |
+| 京东猫粮单价计算 | 在京东购物车中识别猫粮商品并展示每公斤、每 500g 单价 | [目录](./jd-cat-food-unit-price/) / [安装](https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/jd-cat-food-unit-price/jd-cat-food-uni-price.user.js) |
+| 哔哩哔哩增强     | 自动宽屏、取消顶部栏固定，并在播放时自动滚动到播放器 | [目录](./bilibili-play-plus/) / [安装](https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/bilibili-play-plus/bilibili-play-plus.user.js)            |
 
 ## 仓库结构
 

@@ -4,7 +4,7 @@
 
 ## 使用方式
 
-- [点击安装](https://raw.githubusercontent.com/lianginx/browser-script/main/jd-cat-food-unit-price/jd-cat-food-uni-price.user.js)
+- [点击安装](https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/jd-cat-food-unit-price/jd-cat-food-uni-price.user.js)
 
 1. 在 Tampermonkey、Violentmonkey 等用户脚本管理器中安装脚本
 2. 打开京东购物车页面
