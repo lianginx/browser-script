@@ -8,6 +8,7 @@
 | ---------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 京东猫粮单价计算 | 在京东购物车中识别猫粮商品并展示每公斤、每 500g 单价 | [目录](./jd-cat-food-unit-price/) / [安装](https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/jd-cat-food-unit-price/jd-cat-food-uni-price.user.js) |
 | 哔哩哔哩增强     | 自动宽屏、取消顶部栏固定，并在播放时自动滚动到播放器 | [目录](./bilibili-play-plus/) / [安装](https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/bilibili-play-plus/bilibili-play-plus.user.js)            |
+| URL 追踪清理         | 清理 URL 中的追踪参数，支持规则匹配、域名策略和 SPA | [目录](./clear-urls/) / [安装](https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/clear-urls/clear-urls.user.js)            |
 
 ## 仓库结构
 
