@@ -26,6 +26,9 @@
       // bilibili
       'vd_source', 'trackid',
 
+      // jd
+      'pcdk',
+
       // google（保守版）
       'ved', 'ei', 'sca_esv', 'ved', 'ei', 'iflsig', 'gs_lp', 'sca_esv',
       'uact', 'source', 'sclient', 'oq',
