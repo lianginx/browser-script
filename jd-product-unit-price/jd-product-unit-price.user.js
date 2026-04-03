@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name        京东商品单价计算
-// @namespace   @lianginx/jd-cat-food-unit-price
+// @namespace   @lianginx/jd-product-unit-price
 // @match       https://cart.jd.com/cart_index*
 // @icon        https://storage.360buyimg.com/retail-mall/mall-common-component/favicon.ico
 // @grant       none
 // @version     0.3.6
 // @author      lianginx
 // @description 在京东购物车中识别猫粮、大米、小米商品并自动计算每公斤和每 500g 的单价，方便快速比较性价比。
-// @downloadURL https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/jd-cat-food-unit-price/jd-cat-food-uni-price.user.js
-// @updateURL   https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/jd-cat-food-unit-price/jd-cat-food-uni-price.user.js
+// @downloadURL https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/jd-product-unit-price/jd-product-unit-price.user.js
+// @updateURL   https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/jd-product-unit-price/jd-product-unit-price.user.js
 // @run-at      document-idle
 // ==/UserScript==
 

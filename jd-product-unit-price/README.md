@@ -4,7 +4,7 @@
 
 ## 使用方式
 
-- [点击安装](https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/jd-cat-food-unit-price/jd-cat-food-uni-price.user.js)
+- [点击安装](https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/jd-product-unit-price/jd-product-unit-price.user.js)
 
 1. 在 Tampermonkey、Violentmonkey 等用户脚本管理器中安装脚本
 2. 打开京东购物车页面
@@ -18,7 +18,7 @@
 node test.js
 ```
 
-测试脚本直接复用 `jd-cat-food-uni-price.user.js` 导出的纯函数，校验重量提取、单价计算和商品匹配的典型案例：
+测试脚本直接复用 `jd-product-unit-price.user.js` 导出的纯函数，校验重量提取、单价计算和商品匹配的典型案例：
 
 - `10斤*4`、`5斤*4`、`2.5kg*4` 这类乘数写法
 - `10kg/20斤`、`40斤整箱装` 这类汇总重量写法

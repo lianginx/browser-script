@@ -3,7 +3,7 @@
 const {
   isSupportedProduct,
   extractWeightKg,
-} = require('./jd-cat-food-uni-price.user.js');
+} = require('./jd-product-unit-price.user.js');
 
 const weightCases = [
   ['盘锦大米 蟹田大米 东北大米10斤*2/箱装 珍珠米 20斤', 10],
