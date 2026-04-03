@@ -1,24 +1,30 @@
 // ==UserScript==
-// @name        猫粮单价计算
+// @name        京东商品单价计算
 // @namespace   @lianginx/jd-cat-food-unit-price
 // @match       https://cart.jd.com/cart_index*
 // @icon        https://storage.360buyimg.com/retail-mall/mall-common-component/favicon.ico
 // @grant       none
-// @version     0.2.0
+// @version     0.3.6
 // @author      lianginx
-// @description 在京东购物车中识别猫粮商品并自动计算每公斤和每 500g 的单价，方便快速比较性价比。
+// @description 在京东购物车中识别猫粮、大米、小米商品并自动计算每公斤和每 500g 的单价，方便快速比较性价比。
 // @downloadURL https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/jd-cat-food-unit-price/jd-cat-food-uni-price.user.js
 // @updateURL   https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/jd-cat-food-unit-price/jd-cat-food-uni-price.user.js
 // @run-at      document-idle
 // ==/UserScript==
 
-main();
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  main();
+}
 
 async function main() {
-  const cartList = await waitForElement('[class*="_infiniteScroll_center_"]');
+  const state = {
+    cartList: await waitForElement('[class*="_infiniteScroll_center_"]'),
+    cartObserver: null,
+  };
 
   renderGoodsUnitPrice();
-  observeCartChanges(cartList);
+  observeCartChanges(state);
+  observePageChanges(state);
 }
 
 function renderGoodsUnitPrice(scope = document) {
@@ -31,7 +37,7 @@ function renderGoodsUnitPrice(scope = document) {
     try {
       // 获取商品名称
       const goodName = good.querySelector('[class*="_goodTitle_"][title]')?.getAttribute('title')?.trim() || '';
-      if (!goodName?.match(/猫粮/)) return;
+      if (!isSupportedProduct(goodName)) return;
       console.group(goodName);
 
       // 从商品名称中提取重量
@@ -93,7 +99,17 @@ function extractGoodPrice(good) {
   return Number.isFinite(price) ? price : null;
 }
 
-function observeCartChanges(cartList) {
+function isSupportedProduct(goodName) {
+  if (/手机|REDMI|充电宝|电视|平板/i.test(goodName)) {
+    return false;
+  }
+
+  return /猫粮|狗粮|猫砂|(.)米/.test(goodName);
+}
+
+function observeCartChanges(state) {
+  state.cartObserver?.disconnect();
+
   const observer = new MutationObserver(mutations => {
     const dirtyGoods = new Set();
 
@@ -123,10 +139,58 @@ function observeCartChanges(cartList) {
     });
   });
 
-  observer.observe(cartList, {
+  observer.observe(state.cartList, {
     childList: true,
     subtree: true,
     characterData: true,
+  });
+
+  state.cartObserver = observer;
+}
+
+function observePageChanges(state) {
+  const observer = new MutationObserver(mutations => {
+    const dirtyGoods = new Set();
+    let nextCartList = null;
+
+    mutations.forEach(mutation => {
+      mutation.addedNodes.forEach(node => {
+        if (!(node instanceof Element)) return;
+        if (isSelfMutation(node)) return;
+
+        const cartList = node.matches?.('[class*="_infiniteScroll_center_"]')
+          ? node
+          : node.querySelector?.('[class*="_infiniteScroll_center_"]');
+        if (cartList) {
+          nextCartList = cartList;
+        }
+
+        const good = getGoodElement(node);
+        if (good) {
+          dirtyGoods.add(good);
+          return;
+        }
+
+        node.querySelectorAll?.('[class*="_product-item_"]').forEach(item => {
+          dirtyGoods.add(item);
+        });
+      });
+    });
+
+    if (nextCartList && nextCartList !== state.cartList) {
+      state.cartList = nextCartList;
+      observeCartChanges(state);
+      renderGoodsUnitPrice(nextCartList);
+    }
+
+    dirtyGoods.forEach(good => {
+      renderGoodsUnitPrice(good);
+    });
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
   });
 }
 
@@ -153,32 +217,73 @@ function isSelfMutation(node) {
 }
 
 function extractWeightKg(goodName) {
-  // 处理类似 "10kg/20斤" 的写法（避免重复计算）
-  const primaryPart = goodName.split(/[\/|｜]/)[0];
-  // 支持 g / kg / 斤 / 混合写法
-  const weightMatch = primaryPart.match(/(\d+(?:\.\d+)?)\s*(kg|g|KG|G|斤)/g);
-  if (!weightMatch) return null;
+  const normalizedName = goodName.replace(/[／｜]/g, '/');
 
-  let totalKg = 0;
+  const segmentWeights = normalizedName
+    .split(/[\/]/)
+    .map(extractWeightFromSegment)
+    .filter(weight => weight !== null);
 
-  weightMatch.forEach(item => {
-    const match = item.match(/(\d+(?:\.\d+)?)\s*(kg|g|KG|G|斤)/);
-    if (!match) return;
+  if (segmentWeights.length > 0) {
+    return Math.max(...segmentWeights);
+  }
 
-    let value = parseFloat(match[1]);
-    const unit = match[2].toLowerCase();
+  return extractWeightFromSegment(normalizedName);
+}
 
-    if (unit === 'g') {
-      value = value / 1000;
-    } else if (unit === '斤') {
-      value = value * 0.5;
-    }
-    // kg 直接使用
+function convertWeightToKg(value, unit) {
+  const normalizedUnit = unit.toLowerCase();
 
-    totalKg += value;
-  });
+  if (normalizedUnit === 'g') {
+    return value / 1000;
+  }
 
-  return totalKg;
+  if (normalizedUnit === '斤') {
+    return value * 0.5;
+  }
+
+  return value;
+}
+
+function extractWeightFromSegment(segment) {
+  let maxWeight = null;
+
+  const multipliedPattern = /(\d+(?:\.\d+)?)\s*(kg|g|斤)\s*[*x×X]\s*(\d+(?:\.\d+)?)/g;
+  let multipliedMatch;
+  while ((multipliedMatch = multipliedPattern.exec(segment)) !== null) {
+    const value = Number.parseFloat(multipliedMatch[1]);
+    const unit = multipliedMatch[2];
+    const count = Number.parseFloat(multipliedMatch[3]);
+    if (!Number.isFinite(value) || !Number.isFinite(count)) continue;
+
+    const totalKg = convertWeightToKg(value, unit) * count;
+    maxWeight = maxWeight === null ? totalKg : Math.max(maxWeight, totalKg);
+  }
+
+  const packagePattern = /(\d+(?:\.\d+)?)\s*(kg|g|斤)\s*(?:款\s*)?(\d+(?:\.\d+)?)\s*(?:包装|包)/g;
+  let packageMatch;
+  while ((packageMatch = packagePattern.exec(segment)) !== null) {
+    const value = Number.parseFloat(packageMatch[1]);
+    const unit = packageMatch[2];
+    const count = Number.parseFloat(packageMatch[3]);
+    if (!Number.isFinite(value) || !Number.isFinite(count)) continue;
+
+    const totalKg = convertWeightToKg(value, unit) * count;
+    maxWeight = maxWeight === null ? totalKg : Math.max(maxWeight, totalKg);
+  }
+
+  const singlePattern = /(\d+(?:\.\d+)?)\s*(kg|g|KG|G|斤)/g;
+  let singleMatch;
+  while ((singleMatch = singlePattern.exec(segment)) !== null) {
+    const value = Number.parseFloat(singleMatch[1]);
+    const unit = singleMatch[2];
+    if (!Number.isFinite(value)) continue;
+
+    const totalKg = convertWeightToKg(value, unit);
+    maxWeight = maxWeight === null ? totalKg : Math.max(maxWeight, totalKg);
+  }
+
+  return maxWeight;
 }
 
 function waitForElement(selector) {
@@ -199,4 +304,13 @@ function waitForElement(selector) {
       subtree: true,
     });
   });
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    isSupportedProduct,
+    extractWeightKg,
+    convertWeightToKg,
+    extractWeightFromSegment,
+  };
 }
