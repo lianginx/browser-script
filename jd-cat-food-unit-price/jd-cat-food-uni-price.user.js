@@ -4,7 +4,7 @@
 // @match       https://cart.jd.com/cart_index*
 // @icon        https://storage.360buyimg.com/retail-mall/mall-common-component/favicon.ico
 // @grant       none
-// @version     0.1.0
+// @version     0.2.0
 // @author      lianginx
 // @description 在京东购物车中识别猫粮商品并自动计算每公斤和每 500g 的单价，方便快速比较性价比。
 // @downloadURL https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/jd-cat-food-unit-price/jd-cat-food-uni-price.user.js
@@ -15,53 +15,141 @@
 main();
 
 async function main() {
-  // 等待购物车加载
-  await waitForElement('._infiniteScroll_center_jgvx9_52');
+  const cartList = await waitForElement('[class*="_infiniteScroll_center_"]');
 
-  // 获取商品列表
-  const goods = document.querySelectorAll('._product-item_1s9zz_52')
+  renderGoodsUnitPrice();
+  observeCartChanges(cartList);
+}
+
+function renderGoodsUnitPrice(scope = document) {
+  const goods = scope.matches?.('[class*="_product-item_"]')
+    ? [scope]
+    : scope.querySelectorAll('[class*="_product-item_"]');
   console.log('goods count: ', goods.length);
 
-  // 筛选猫粮商品
   goods.forEach(good => {
-    const goodName = good.querySelector('._goodTitle_1xhs4_52._title__hover_1xhs4_84')?.getAttribute('title')?.trim();
-    if (!goodName) return;
-    if (!goodName.includes('猫粮')) return;
-    console.group(goodName)
-
     try {
-      // 获取重量
+      // 获取商品名称
+      const goodName = good.querySelector('[class*="_goodTitle_"][title]')?.getAttribute('title')?.trim() || '';
+      if (!goodName?.match(/猫粮/)) return;
+      console.group(goodName);
+
+      // 从商品名称中提取重量
       const totalKg = extractWeightKg(goodName);
       if (!totalKg) return;
       console.log('weight (kg): ', totalKg);
 
       // 获取价格
-      const fullPrice = good.querySelector('._price-normal_czw0e_69')?.textContent.trim();
-      const price = fullPrice ? parseFloat(fullPrice.replace(/￥|¥/, '')) : null;
+      const price = extractGoodPrice(good);
       console.log('price: ', price);
       if (!price) return;
 
-      // 计算猫粮单价
+      // 计算单价
       const unitPriceByKg = price / totalKg;
       const unitPriceByJin = price / (totalKg * 2);
       console.log('单价(公斤): ', unitPriceByKg);
       console.log('单价(市斤): ', unitPriceByJin);
 
-      // 插入单价到 DOM
-      const unitPrice = document.createElement('div');
-      unitPrice.innerHTML = `
-<span style="font-weight: 500;">¥${unitPriceByKg.toFixed(2)}</span><span style="font-size: 10px">/kg</span>
+      // 插入计算后的单价
+      if (!good.querySelector('.jd-cat-food-unit-price')) {
+        const priceAnchor = good.querySelector('[class*="_flexPriceAndPromotion_"] > div');
+        if (!priceAnchor) return;
+        const unitPrice = document.createElement('div');
+        unitPrice.className = 'jd-cat-food-unit-price';
+        unitPrice.style.fontSize = '12px';
+        unitPrice.style.color = '#333';
+        unitPrice.style.lineHeight = '1';
+        unitPrice.style.marginBottom = '4px';
+        unitPrice.innerHTML = `
+<span class="kg" style="font-weight: 500;">¥${unitPriceByKg.toFixed(2)}</span><span style="font-size: 10px">/kg</span>
 |
-<span style="font-weight: 500;">¥${unitPriceByJin.toFixed(2)}</span><span style="font-size: 10px">/500g</span>`;
-      unitPrice.style.fontSize = '12px';
-      unitPrice.style.color = '#333';
-      unitPrice.style.lineHeight = '1';
-      good.querySelector('._rowItem_1s9zz_97._flexPriceAndPromotion_1s9zz_112 > div')
-        .before(unitPrice);
+<span class="jin" style="font-weight: 500;">¥${unitPriceByJin.toFixed(2)}</span><span style="font-size: 10px">/500g</span>`;
+        priceAnchor.before(unitPrice);
+      }
+      // 更新计算后的单价
+      else {
+        const kg = good.querySelector('.jd-cat-food-unit-price .kg');
+        const kgText = `¥${unitPriceByKg.toFixed(2)}`;
+        if (kg && kg.textContent !== kgText) {
+          kg.textContent = kgText;
+        }
+        const jin = good.querySelector('.jd-cat-food-unit-price .jin');
+        const jinText = `¥${unitPriceByJin.toFixed(2)}`;
+        if (jin && jin.textContent !== jinText) {
+          jin.textContent = jinText;
+        }
+      }
     } finally {
       console.groupEnd();
     }
-  })
+  });
+}
+
+function extractGoodPrice(good) {
+  const fullPrice = good.querySelector('[class*="_price-normal_"]')?.textContent?.trim();
+  if (!fullPrice) return null;
+
+  const price = parseFloat(fullPrice.replace(/￥|¥|,/g, ''));
+  return Number.isFinite(price) ? price : null;
+}
+
+function observeCartChanges(cartList) {
+  const observer = new MutationObserver(mutations => {
+    const dirtyGoods = new Set();
+
+    mutations.forEach(mutation => {
+      if (isSelfMutation(mutation.target)) return;
+
+      const changedNodes = [mutation.target, ...mutation.addedNodes, ...mutation.removedNodes];
+
+      changedNodes.forEach(node => {
+        const good = getGoodElement(node);
+        if (good) {
+          dirtyGoods.add(good);
+          return;
+        }
+
+        if (!(node instanceof Element)) return;
+        if (isSelfMutation(node)) return;
+
+        if (node.matches?.('[class*="_product-item_"]')) {
+          dirtyGoods.add(node);
+        }
+      });
+    });
+
+    dirtyGoods.forEach(good => {
+      renderGoodsUnitPrice(good);
+    });
+  });
+
+  observer.observe(cartList, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  });
+}
+
+function getGoodElement(node) {
+  if (node instanceof Element) {
+    return node.closest('[class*="_product-item_"]');
+  }
+
+  const parent = node.parentElement;
+  if (!parent) return null;
+  return parent.closest('[class*="_product-item_"]');
+}
+
+function isSelfMutation(node) {
+  if (node instanceof Element) {
+    return node.classList.contains('jd-cat-food-unit-price')
+      || Boolean(node.closest('.jd-cat-food-unit-price'));
+  }
+
+  const parent = node.parentElement;
+  if (!parent) return false;
+  return parent.classList.contains('jd-cat-food-unit-price')
+    || Boolean(parent.closest('.jd-cat-food-unit-price'));
 }
 
 function extractWeightKg(goodName) {
