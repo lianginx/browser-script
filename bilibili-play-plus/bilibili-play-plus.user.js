@@ -4,7 +4,7 @@
 // @match       https://www.bilibili.com/video/*
 // @icon        https://i0.hdslb.com/bfs/static/jinkela/long/images/favicon.ico
 // @grant       none
-// @version     0.3.1
+// @version     0.3.2
 // @author      lianginx
 // @description 优化 B 站视频页播放体验。
 // @downloadURL https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/bilibili-play-plus/bilibili-play-plus.user.js
@@ -22,8 +22,8 @@ function main() {
   ];
   const observer = new MutationObserver(() => {
     for (const task of tasks) {
-      if (task.status) return;
-      task.status = task.action();
+      if (!task.status)
+        task.status = task.action();
     }
     if (tasks.every(task => task.status))
       observer.disconnect();
