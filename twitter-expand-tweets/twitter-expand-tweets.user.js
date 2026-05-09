@@ -3,6 +3,7 @@
 // @namespace    @lianginx/twitter-expand-tweets
 // @match        https://x.com/*
 // @match        https://twitter.com/*
+// @icon         https://abs.twimg.com/favicons/twitter.ico
 // @grant        none
 // @version      1.0.0
 // @author       lianginx
