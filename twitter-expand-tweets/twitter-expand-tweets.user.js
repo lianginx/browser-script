@@ -5,7 +5,7 @@
 // @match        https://twitter.com/*
 // @icon         https://abs.twimg.com/favicons/twitter.ico
 // @grant        none
-// @version      1.0.0
+// @version      1.0.1
 // @author       lianginx
 // @description  自动展开 X/Twitter 时间线中被折叠的长推文
 // @downloadURL  https://raw.githubusercontent.com/lianginx/browser-script/refs/heads/master/twitter-expand-tweets/twitter-expand-tweets.user.js
